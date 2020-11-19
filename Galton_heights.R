@@ -81,6 +81,10 @@ r <- cor(galton_heights$father, galton_heights$son)
 m <- r * s_y/s_x
 b <- mu_y - m*mu_x
 
+r
+m
+b
+
 # add regression line to plot
 galton_heights %>%
   ggplot(aes(father, son)) +
@@ -123,6 +127,14 @@ b_2 <- mu_x - m_2*mu_y
 m_2
 b_2
 
+# model
+lm(son ~ father, data = galton_heights)
+
+# centering fathers' heights at zero
+galton_heights <- galton_heights %>%
+  mutate(father_centered=father - mean(father))
+
+lm(son ~ father_centered, data = galton_heights)
 
 
 
