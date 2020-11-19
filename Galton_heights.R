@@ -87,3 +87,15 @@ galton_heights %>%
   geom_point(alpha = 0.5) +
   geom_abline(intercept = b, slope = m)
 
+# Plot standardized heights
+galton_heights %>%
+  mutate(father = round(father)) %>%
+  group_by(father) %>%
+  summarize(son = mean(son)) %>%
+  mutate(z_father = scale(father), z_son = scale(son)) %>%
+  ggplot(aes(z_father, z_son)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = r) +
+  geom_text(x=-1, y=0, label= paste("slope = ", round(r, 2)))
+  
+
