@@ -42,8 +42,29 @@ female_heights %>% ggplot(aes(mother, daughter)) +
   ggtitle("Daughter height vs Mother height") +
   geom_text(x=70, y=66.8, label= paste("corr = ", round(r, 2)), col = "blue")
 
+# Conditional expected value
+mother_height <- 60
+expected_daughter <- b + m * mother_height
+expected_daughter
 
+# Plotting sons heights vs mothers
 
+sons_heights <- GaltonFamilies%>%     
+  filter(gender == "male") %>%     
+  group_by(family) %>%     
+  sample_n(1) %>%     
+  ungroup() %>%     
+  select(mother, childHeight) %>%     
+  rename(son = childHeight)
+
+# Correlation Mother son 
+r <- cor(sons_heights$mother, sons_heights$son)
+print(r)
+
+sons_heights %>% ggplot(aes(mother, son)) +
+  geom_point(alpha = 0.5) + 
+  ggtitle("Son height vs Mother height") +
+  geom_text(x=70, y=66.8, label= paste("corr = ", round(r, 2)), col = "blue")
 
 
 
