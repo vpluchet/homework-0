@@ -15,6 +15,23 @@ female_heights <- GaltonFamilies%>%
 
 female_heights %>% summarise(mean(mother), sd(mother), mean(daughter), sd(daughter), cor(mother, daughter))
 
+# Fitting model predicting mothers heights
+Fit <- female_heights %>% lm(mother ~ daughter, data = .)
+summary(Fit)
+Fit$coefficients[1]
+Fit$coefficients[2]
+
+# Predicting mothers heights and extracting the projection for the first mother vs Actual
+t <- predict(Fit)
+t[1]
+
+# Prediction for first mothr
+predict(Fit)[1]
+# Actual for first mother
+female_heights$mother[1]
+
+
+
 r <- cor(female_heights$mother, female_heights$daughter)
 muy <- mean(female_heights$daughter)
 mux <- mean(female_heights$mother)
