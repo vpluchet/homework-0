@@ -259,4 +259,64 @@ ggplot(data, aes(x = father, y = fit)) +
   geom_ribbon(aes(ymin=lwr, ymax=upr), alpha=0.2) + 
   geom_point(data = galton_heights, aes(x = father, y = son))
 
+# 2.3 test
+library(tidyverse)
+library(HistData)
+data("GaltonFamilies")
+set.seed(1, sample.kind = "Rounding") # if you are using R 3.6 or later
+galton <- GaltonFamilies %>%
+  group_by(family, gender) %>%
+  sample_n(1) %>%
+  ungroup() %>% 
+  gather(parent, parentHeight, father:mother) %>%
+  mutate(child = ifelse(gender == "female", "daughter", "son")) %>%
+  unite(pair, c("parent", "child"))
+
+galton
+
+# Group by pair and summarize the number of observations in each group.
+
+# suboptimal code
+galton %>% group_by(pair) %>%
+  summarise(FD = sum(pair == "father_daughter"), MS = sum(pair == "mother_son"))
+
+# better code
+galton %>%
+  group_by(pair) %>%
+  summarize(count = n())
+
+# Calculate the correlation coefficients
+galton %>%
+  group_by(pair) %>%
+  summarise(r = cor(childHeight, parentHeight))
+
+# Use lm() and the broom package to fit regression lines for each parent-child pair type
+galton %>%
+  group_by(pair) %>%
+  do(tidy(lm(childHeight ~ parentHeight, data = .), conf.int = TRUE))
+
+# Code to get only Mother son coefficient
+galton %>%
+  group_by(pair) %>%
+  do(tidy(lm(childHeight ~ parentHeight, data = .), conf.int = TRUE)) %>%
+  filter(term == "parentHeight", pair == "mother_son") %>%
+  pull(estimate)
+
+galton %>%
+  group_by(pair) %>%
+  do(tidy(lm(childHeight ~ parentHeight, data = .), conf.int = TRUE)) %>%
+  mutate(conf_size = conf.high - conf.low) %>%
+  filter(term == "parentHeight" & p.value < .05)
+
+# With graph
+galton %>%
+  group_by(pair) %>%
+  do(tidy(lm(childHeight ~ parentHeight, data = .), conf.int = TRUE)) %>%
+  filter(term == "parentHeight" & p.value < .05) %>%
+  ggplot(aes(pair, y = estimate, ymin = conf.low, ymax = conf.high)) +
+  geom_errorbar() +
+  geom_point()
+
+
+
 
